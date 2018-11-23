@@ -91,16 +91,9 @@ def generator_gatedcnn(inputs, speaker_id=None, reuse=False, scope_name='generat
 
         #downsample
         d1 = downsample2d_block(inputs, filters=32, kernel_size=[3, 9], strides=[1, 1], padding=[1, 4], name_prefix='down_1')
-        print(f'd1: {d1.shape.as_list()}')
-
         d2 = downsample2d_block(d1, filters=64, kernel_size=[4, 8], strides=[2, 2], padding=[1, 3], name_prefix='down_2')
-        print(f'd2: {d2.shape.as_list()}')
-
         d3 = downsample2d_block(d2, filters=128, kernel_size=[4, 8], strides=[2, 2], padding=[1, 3], name_prefix='down_3')
-        print(f'd3: {d3.shape.as_list()}')
-
         d4 = downsample2d_block(d3, filters=64, kernel_size=[3, 5], strides=[1, 1], padding=[1, 2], name_prefix='down_4')
-        print(f'd4: {d4.shape.as_list()}')
         d5 = downsample2d_block(d4, filters=5, kernel_size=[9, 5], strides=[9, 1], padding=[1, 2], name_prefix='down_5')
 
         #upsample
@@ -112,31 +105,18 @@ def generator_gatedcnn(inputs, speaker_id=None, reuse=False, scope_name='generat
         # print(concated.shape.as_list())
 
         u1 = upsample2d_block(concated, 64, kernel_size=[9, 5], strides=[9, 1], name_prefix='gen_up_u1')
-        print(f'u1.shape :{u1.shape.as_list()}')
-
         c1 = tf.tile(c_cast, [1, u1.shape.dims[1].value, u1.shape.dims[2].value, 1])
-        print(f'c1 shape: {c1.shape}')
         u1_concat = tf.concat([u1, c1], axis=-1)
-        print(f'u1_concat.shape :{u1_concat.shape.as_list()}')
-
         u2 = upsample2d_block(u1_concat, 128, [3, 5], [1, 1], name_prefix='gen_up_u2')
-        print(f'u2.shape :{u2.shape.as_list()}')
         c2 = tf.tile(c_cast, [1, u2.shape[1], u2.shape[2], 1])
         u2_concat = tf.concat([u2, c2], axis=-1)
-
         u3 = upsample2d_block(u2_concat, 64, [4, 8], [2, 2], name_prefix='gen_up_u3')
-        print(f'u3.shape :{u3.shape.as_list()}')
         c3 = tf.tile(c_cast, [1, u3.shape[1], u3.shape[2], 1])
         u3_concat = tf.concat([u3, c3], axis=-1)
-
         u4 = upsample2d_block(u3_concat, 32, [4, 8], [2, 2], name_prefix='gen_up_u4')
-        print(f'u4.shape :{u4.shape.as_list()}')
         c4 = tf.tile(c_cast, [1, u4.shape[1], u4.shape[2], 1])
         u4_concat = tf.concat([u4, c4], axis=-1)
-        print(f'u4_concat.shape :{u4_concat.shape.as_list()}')
-
         u5 = tf.layers.Conv2DTranspose(filters=1, kernel_size=[3, 9], strides=[1, 1], padding='same', name='generator_last_deconv')(u4_concat)
-        print(f'u5.shape :{u5.shape.as_list()}')
 
         return u5
 
@@ -199,32 +179,21 @@ def domain_classifier(inputs, reuse=False, scope_name='classifier'):
 
         d1 = tf.layers.conv2d(one_slice, 8, kernel_size=[4, 4], padding='same', name=scope_name + '_conv2d01')
         d1_p = tf.layers.max_pooling2d(d1, [2, 2], strides=[2, 2], name=scope_name + 'p1')
-        print(f'domain_classifier_d1: {d1.shape}')
-        print(f'domain_classifier_d1_p: {d1_p.shape}')
 
         d2 = tf.layers.conv2d(d1_p, 16, [4, 4], padding='same', name=scope_name + '_conv2d02')
         d2_p = tf.layers.max_pooling2d(d2, [2, 2], strides=[2, 2], name=scope_name + 'p2')
-        print(f'domain_classifier_d12: {d2.shape}')
-        print(f'domain_classifier_d2_p: {d2_p.shape}')
 
         d3 = tf.layers.conv2d(d2_p, 32, [4, 4], padding='same', name=scope_name + '_conv2d03')
         d3_p = tf.layers.max_pooling2d(d3, [2, 2], strides=[2, 2], name=scope_name + 'p3')
-        print(f'domain_classifier_d3: {d3.shape}')
-        print(f'domain_classifier_d3_p: {d3_p.shape}')
 
         d4 = tf.layers.conv2d(d3_p, 16, [3, 4], padding='same', name=scope_name + '_conv2d04')
         d4_p = tf.layers.max_pooling2d(d4, [1, 2], strides=[1, 2], name=scope_name + 'p4')
-        print(f'domain_classifier_d4: {d4.shape}')
-        print(f'domain_classifier_d4_p: {d4_p.shape}')
 
         d5 = tf.layers.conv2d(d4_p, 4, [1, 4], padding='same', name=scope_name + '_conv2d05')
         d5_p = tf.layers.max_pooling2d(d5, [1, 2], strides=[1, 2], name=scope_name + 'p5')
-        print(f'domain_classifier_d5: {d5.shape}')
-        print(f'domain_classifier_d5_p: {d5_p.shape}')
 
         p = tf.keras.layers.GlobalAveragePooling2D()(d5_p)
 
         o_r = tf.reshape(p, [-1, 1, 1, p.shape.dims[1].value])
-        print(f'classifier_output: {o_r.shape}')
 
         return o_r
