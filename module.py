@@ -148,7 +148,7 @@ def discriminator(inputs, speaker_id, reuse=False, scope_name='discriminator'):
 
         return c1_red
 
-
+# Why not strided-Conv but max-pooling? In G & D, you use strided-Conv
 def domain_classifier(inputs, reuse=False, scope_name='classifier'):
 
     with tf.variable_scope(scope_name) as scope:
