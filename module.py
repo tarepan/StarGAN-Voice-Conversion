@@ -82,10 +82,23 @@ def generator_gatedcnn(inputs, speaker_id=None, reuse=False, scope_name='generat
 
         #upsample
         speaker_id = tf.convert_to_tensor(speaker_id, dtype=tf.float32)
+        ## (with PyTorch Notation:)
+        # (1, 1, 4)
+        # [
+        #     [0,1,0,0]
+        # ]
+        # =>
+        # (1, 4, 1, 1)
+        # [[
+        #         [[0]],
+        #         [[1]],
+        #         [[0]],
+        #         [[0]],
+        # ]]
         c_cast = tf.cast(tf.reshape(speaker_id, [-1, 1, 1, speaker_id.shape.dims[-1].value]), tf.float32)
         c = tf.tile(c_cast, [1, d5.shape.dims[1].value, d5.shape.dims[2].value, 1])
         print(c.shape.as_list())
-        concated = tf.concat([d5, c], axis=-1)
+        concated = tf.concat([d5, c], axis=-1) # concat in channel dim (in tf, channel is last axis)
         # print(concated.shape.as_list())
 
         u1 = upsample2d_block(concated, 64, kernel_size=[9, 5], strides=[9, 1], name_prefix='gen_up_u1')
