@@ -8,6 +8,7 @@ def gated_linear_layer(inputs, gates, name=None):
     return activation
 
 
+# Why not BN but IN? original article use BN (IN is for CycleGAN-VC)
 def instance_norm_layer(inputs, epsilon=1e-05, activation_fn=None, name=None):
 
     instance_norm_layer = tf.contrib.layers.instance_norm(
