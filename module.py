@@ -66,19 +66,6 @@ def upsample2d_block(inputs, filters, kernel_size, strides, name_prefix='upsampl
     return x1_glu
 
 
-def pixel_shuffler(inputs, shuffle_size=2, name=None):
-
-    n = tf.shape(inputs)[0]
-    w = tf.shape(inputs)[1]
-    c = inputs.get_shape().as_list()[2]
-
-    oc = c // shuffle_size
-    ow = w * shuffle_size
-
-    outputs = tf.reshape(tensor=inputs, shape=[n, ow, oc], name=name)
-
-    return outputs
-
 # Generator
 def generator_gatedcnn(inputs, speaker_id=None, reuse=False, scope_name='generator_gatedcnn'):
     #input shape [batchsize, h, w, c]
