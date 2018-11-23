@@ -189,6 +189,9 @@ def domain_classifier(inputs, reuse=False, scope_name='classifier'):
         d5 = tf.layers.conv2d(d4_p, 4, [1, 4], padding='same', name=scope_name + '_conv2d05')
         d5_p = tf.layers.max_pooling2d(d5, [1, 2], strides=[1, 2], name=scope_name + 'p5')
 
+        # (1 batch, 1 height, 64 width, 4 channel)
+        # =>
+        # (1 batch, )
         p = tf.keras.layers.GlobalAveragePooling2D()(d5_p)
 
         o_r = tf.reshape(p, [-1, 1, 1, p.shape.dims[1].value])
